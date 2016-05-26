@@ -7,19 +7,18 @@ var content = new ContentfulPull({
   accessToken: "56829e5230afd110f6ec9d96ba7b2be632ce391af637b5533bb522ae1e397273"
 });
 
-
-// The lightest weight express-like thing
-function basicServer() {
+// Express-like server in 21 lines:
+function xpress() {
   var server = http.createServer(handleRequest);
   var middlewares = [];
   
   function handleRequest(req, res) {
     var index = -1;
-    function next() {
+    function n() {
       index++;
-      middlewares[index](req,res,next);
+      middlewares[index](req,res,n);
     }
-    next();
+    n();
   }
   
   return {
@@ -32,13 +31,15 @@ function basicServer() {
   }
 }
 
-var app = basicServer();
+var app = xpress();
 
 // Database middleware
 app.use(function(req, res, next) {
   content.get().then(function(response) {
     res.db = response;
     next();
+  }).catch(function(err) {
+    console.log(err.stack);
   });
 })
 
@@ -56,4 +57,5 @@ app.use(function(req, res, next) {
   }
 })
 
+console.log("xpress running on 4000");
 app.listen(4000);
