@@ -120,6 +120,7 @@ ContentfulPull.prototype.getFromFile = function() {
     if (err) d.reject(err);
     if (!err) {
       _this.data = JSON.parse(resp);
+      _this.currentSyncToken = _this.data.currentSyncToken;
       d.resolve(_this.data);
     }
   })
