@@ -28,12 +28,11 @@ function ContentfulPull(settings) {
   ContentfulSynchronize.sync
     syncs the contentful
 */
-ContentfulPull.prototype.sync = function(options) {
+ContentfulPull.prototype.sync = function() {
   var _this = this;
   
   console.log("ContentfulPull | Syncing...");
   
-  var options = {initial: false};
   var d = Promise.defer();
   
   var client = contentful.createClient({
@@ -42,8 +41,6 @@ ContentfulPull.prototype.sync = function(options) {
   })
   
   var isInitial = this.currentSyncToken ? false : true;
-  if (options.initial) isInitial = true;
-  var resolveLinks = options.resolveLinks;
   
   var spacePromise = client.getSpace();
   var contentTypesPromise = client.getContentTypes();
