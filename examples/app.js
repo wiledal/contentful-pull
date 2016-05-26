@@ -7,7 +7,7 @@ var content = new ContentfulPull({
   accessToken: "56829e5230afd110f6ec9d96ba7b2be632ce391af637b5533bb522ae1e397273"
 });
 
-// Express-like server in 21 lines:
+// Express-like server in 22 lines:
 function xpress() {
   var server = http.createServer(handleRequest);
   var middlewares = [];

@@ -1,6 +1,6 @@
 # contentful-pull
 
-### usage:
+### Usage:
 ```js
 var ContentfulPull = require("contentful-pull");
 
@@ -12,6 +12,7 @@ var content = new ContentfulPull({
 
 // Get, gets all data from local storage, syncs if no local storage is available
 // Use this pretty much always
+// Great for use in a middleware before your routes
 content.get().then(function(response) {
   console.log(response.entries);
 })

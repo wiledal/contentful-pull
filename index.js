@@ -2,6 +2,10 @@ var fs = require("fs"),
     contentful = require("contentful"),
     helpers = require("./lib/helpers.js");
 
+function throwError(err) {
+  console.log(err.stack);
+}
+
 /*
   ContentfulPull
     Main constructor
@@ -102,7 +106,7 @@ ContentfulPull.prototype.handleSyncResponse = function(resp) {
   }
   
   // Save to local file
-  this.saveLocal(saveData);
+  this.saveLocal(saveData).catch(throwError);
   this.data = saveData;
   
   return saveData;
