@@ -5,6 +5,11 @@ This class utilizes the sync-method of the Contentful API to fetch data, save a 
   
 Use with small to medium datasets of non-sensitive data. 
 
+### Features
+- Sync Contentful data from your space
+- Save data locally and in memory, limiting requests to Contentful's API
+- Content is formatted for more straight forward use
+
 ### Usage:
 ```js
 var ContentfulPull = require("contentful-pull");
@@ -35,6 +40,10 @@ content.sync().then(function(response) {
 ```
 
 See examples for a use-case scenario.
+
+### Future improvement todos
+- Allow for getting raw Contentful data, to do with as you please
+- Allow method for link resolving, not suitable for json since circular references will appear
 
 ### License
 (MIT License)  
