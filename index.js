@@ -28,7 +28,7 @@ function ContentfulPull(settings) {
   ContentfulSynchronize.sync
     syncs the contentful
 */
-ContentfulPull.prototype.sync = function() {
+ContentfulPull.prototype.sync = function(options) {
   var _this = this;
   
   console.log("ContentfulPull | Syncing...");
@@ -48,12 +48,12 @@ ContentfulPull.prototype.sync = function() {
   
   Promise.all([spacePromise, contentTypesPromise, syncPromise]).then(function(result) {
     var handledData = _this.handleSyncResponse({
-      spaceData: result[0],
-      contentTypesData: result[1],
-      syncData: result[2]
+      space: result[0],
+      contentTypes: result[1],
+      sync: result[2]
     });
     
-    d.resolve(handledData.content);
+    d.resolve(_this.transformData(handledData));
   });
   
   return d.promise;
@@ -64,56 +64,123 @@ ContentfulPull.prototype.sync = function() {
     Handles the response from Contentful
 */
 ContentfulPull.prototype.handleSyncResponse = function(resp) {
-  this.currentSyncToken = resp.syncData.nextSyncToken;
+  var _this = this;
+  this.currentSyncToken = resp.sync.nextSyncToken;
   
-  var saveData = this.data || {
-    currentSyncToken: this.currentSyncToken,
-    content: {
-      assets: [],
-      entries: []
-    }
-  };
+  if (!this.data) this.data = resp;
   
-  resp.syncData.entries.forEach(function(entry) {
-    var formatted = helpers.formatEntry(entry, resp.contentTypesData, resp.spaceData);
-    saveData.content.entries.push(formatted);
-  });
+  // If there are updates, replace current with new
+  if (resp.sync.entries) {
+    resp.sync.entries.forEach(function(entry) {
+      var alreadyExist = _this.data.sync.entries.map(function(e) { return e.sys.id }).indexOf(entry.sys.id);
+      if (alreadyExist > -1) {
+        _this.data.sync.entries[alreadyExist] = entry;
+      }else{
+        _this.data.sync.entries.push(entry);
+      }  
+    })
+  }
   
-  resp.syncData.assets.forEach(function(asset) {
-    var formatted = helpers.formatAsset(asset, resp.contentTypesData, resp.spaceData);
-    saveData.content.assets.push(formatted);
-  });
+  if (resp.sync.assets) {
+    resp.sync.assets.forEach(function(asset) {
+      var alreadyExist = _this.data.sync.assets.map(function(e) { return e.sys.id }).indexOf(asset.sys.id);
+      if (alreadyExist > -1) {
+        _this.data.sync.assets[alreadyExist] = asset;
+      }else{
+        _this.data.sync.assets.push(asset);
+      }  
+    })
+  }
   
   // remove deleted from entries
-  if (resp.syncData.deletedEntries) {
-    resp.syncData.deletedEntries.forEach(function(deletedEntry) {
-      saveData.content.entries.forEach(function(entry, index) {
-        if (entry.id == deletedEntry.sys.id) saveData.content.entries.splice(index, 1);
+  if (resp.sync.deletedEntries) {    
+    resp.sync.deletedEntries.forEach(function(deletedEntry) {
+      _this.data.sync.entries.forEach(function(entry, index) {
+        if (entry.sys.id == deletedEntry.sys.id) _this.data.sync.entries.splice(index, 1);
       })
     })
   }
   
   // remove deleted from assets
-  if (resp.syncData.deletedAssets) {
-    resp.syncData.deletedAssets.forEach(function(deletedAsset) {
-      saveData.content.assets.forEach(function(asset, index) {
-        if (entry.id == deletedEntry.sys.id) saveData.content.entries.splice(index, 1);
+  if (resp.sync.deletedAssets) {
+    resp.sync.deletedAssets.forEach(function(deletedAsset) {
+      _this.data.sync.assets.forEach(function(asset, index) {
+        if (asset.sys.id == deletedAsset.sys.id) _this.data.sync.assets.splice(index, 1);
       })
     })
   }
   
   // Save to local file
-  this.saveLocal(saveData).catch(throwError);
-  this.data = saveData;
+  this.saveLocal(_this.data).catch(throwError);
+  return this.data;
+}
+
+/*
+  transformData
+    Transforms the data to preferred format before usage
+*/
+ContentfulPull.prototype.transformData = function(data, options) {
+  // If RAW data is requested, return basic object
+  if (!options) options = {};
+  if (options.raw) return data;
   
-  return saveData;
+  // Else continue to make workable data
+  var transformedData = {
+    assets: [],
+    entries: []
+  };
+  
+  data.sync.entries.forEach(function(entry) {
+    var formatted = helpers.formatEntry(entry, data.contentTypes, data.space);
+    transformedData.entries.push(formatted);
+  });
+  
+  data.sync.assets.forEach(function(asset) {
+    var formatted = helpers.formatAsset(asset, data.contentTypes, data.space);
+    transformedData.assets.push(formatted);
+  });
+  
+  // Resolves the links
+  if (options.resolveLinks) {
+    for (var i = 0; i < transformedData.entries.length; i++) {
+      // For each entry
+      var entry = transformedData.entries[i];
+      
+      for (var key in entry.fields) {
+        // Go through each field
+        var field = entry.fields[key];
+        
+        for (var lang in field) {
+          // And go through each language
+          var fieldContent = field[lang];
+          
+          if (fieldContent instanceof Object && !(fieldContent instanceof Array)) {
+            // If the field is an object, find the entry with the id and set it
+            // to that
+            
+            var lookArray = transformedData.entries;
+            if (fieldContent.type == "asset") {
+              lookArray = transformedData.assets;
+            }
+            var referenced = lookArray.filter(function(e) {
+              if (e.id == fieldContent.id) return true;
+              return false;
+            });
+            field[lang] = referenced[0];
+          }
+        }
+      }
+    }
+  }
+  
+  return transformedData;
 }
 
 /*
   ContentfulPull.getFromFile
     Loads the datafile into memory
 */
-ContentfulPull.prototype.getFromFile = function() {
+ContentfulPull.prototype.getFromFile = function(options) {
   var _this = this;
   var d = Promise.defer();
   
@@ -121,8 +188,8 @@ ContentfulPull.prototype.getFromFile = function() {
     if (err) d.reject(err);
     if (!err) {
       _this.data = JSON.parse(resp);
-      _this.currentSyncToken = _this.data.currentSyncToken;
-      d.resolve(_this.data.content);
+      _this.currentSyncToken = _this.data.sync.currentSyncToken;
+      d.resolve(_this.transformData(_this.data, options));
     }
   })
   
@@ -133,18 +200,18 @@ ContentfulPull.prototype.getFromFile = function() {
   ContentfulPull.get
     Returns a promise with the data in memory, from the web, or from the local store.
 */
-ContentfulPull.prototype.get = function() {
+ContentfulPull.prototype.get = function(options) {
   var _this = this;
   var d = Promise.defer();
   
   // If no data is in memory, get from file, if that's not existing, sync from contentful
   if (!this.data) {
-    this.getFromFile().then(d.resolve).catch(function() {
-      _this.sync().then(d.resolve);
+    this.getFromFile(options).then(d.resolve).catch(function() {
+      _this.sync(options).then(d.resolve);
     })
   }else{
     return new Promise(function(resolve, reject) {
-      resolve(_this.data.content);
+      resolve(_this.transformData(_this.data, options));
     })
   }
   

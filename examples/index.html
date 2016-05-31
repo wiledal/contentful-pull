@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Contentful test</title>
+  </head>
+  <body>
+    <% for (var i = 0; i < this.entries.length; i++) { %>
+      <div class="entry">
+        <h3><% this.entries[i].fields.title["en-US"] %></h3>
+        <img width="200" src="<% this.entries[i].fields.image["en-US"].fields.file["en-US"].url %>" alt="">
+      </div>
+    <% } %>
+  </body>
+</html>
