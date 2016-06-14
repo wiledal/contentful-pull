@@ -2,7 +2,7 @@
 
 #### v0.2
   - `.get`, `.sync` now has a "resolveLinks"-option which resolves entry and asset links
-  - Provide `{raw: true}` in sync or get methods to get the raw data from contentful
+  - Provide `{raw: true}` in `sync` or `get` methods to get the raw data from contentful
   - Now saving data as it comes from Contentful and processing it upon `.get`
   - Sync now works with updates
 

@@ -2,8 +2,8 @@
 
 ### What?
 This class utilizes the sync-method of the Contentful API to fetch data, save a local copy in plain .json for further use, and store in application memory for quick access.  
-  
-Use with small to medium datasets of non-sensitive data. 
+
+Use with small to medium datasets of non-sensitive data.
 
 ### Disclaimer
 This software is not thoroughly tested and technically not considered to be under active development. Use at own risk.
@@ -20,7 +20,7 @@ var ContentfulPull = require("contentful-pull");
 var content = new ContentfulPull({
   // Where to store the local .json-file
   path: __dirname + "/local.json",
-  
+
   // Contentful space and accessToken
   space: "space_id",
   accessToken: "access_token"
@@ -41,10 +41,12 @@ content.sync().then(function(response) {
   console.log(response.assets);
 })
 
-// You can also use options to change the format of the returned data
+// You can also use options to change the format of the returned data.
+// These options work with both .get and .sync, but only affects the returned data.
+// The saved data is always saved raw.
 content.get({
   raw: false, // false by default, set true if you want the raw Contentful response
-  resolveLinks: true // false by default, set true to resolve links within the data
+  resolveLinks: true // (Experimental!) false by default, set true to resolve links within the data
 })
 ```
 
