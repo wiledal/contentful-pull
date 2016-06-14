@@ -5,6 +5,9 @@ This class utilizes the sync-method of the Contentful API to fetch data, save a 
   
 Use with small to medium datasets of non-sensitive data. 
 
+### Disclaimer
+This software is not thoroughly tested and technically not considered to be under active development. Use at own risk.
+
 ### Features
 - Sync Contentful data from your space
 - Save data locally and in memory, limiting requests to Contentful's API
@@ -37,13 +40,15 @@ content.sync().then(function(response) {
   console.log(response.entries);
   console.log(response.assets);
 })
+
+// You can also use options to change the format of the returned data
+content.get({
+  raw: false, // false by default, set true if you want the raw Contentful response
+  resolveLinks: true // false by default, set true to resolve links within the data
+})
 ```
 
 See examples for a use-case scenario.
-
-### Future improvement todos
-- Allow for getting raw Contentful data, to do with as you please
-- Allow method for link resolving, not suitable for json since circular references will appear
 
 ### License
 (MIT License)  
