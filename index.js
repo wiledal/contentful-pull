@@ -233,6 +233,7 @@ ContentfulPull.prototype.saveLocal = function(data) {
   fs.writeFile(this.settings.path, JSON.stringify(data), "utf8", function(err) {
     if (err) {
       console.log("ContentfulPull | An error occurred while saving local file.");
+      console.log(err.stack);
       d.reject();
     }
     if (!err) {

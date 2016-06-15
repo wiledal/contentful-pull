@@ -1,5 +1,8 @@
 # contentful-pull changelog
 
+#### v0.2.2
+  - Errors when saving now show in console
+
 #### v0.2.1
   - Some small improvements to the syncing-method
   - Updated example
