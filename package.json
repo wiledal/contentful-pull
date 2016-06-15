@@ -1,7 +1,7 @@
 {
   "name": "contentful-pull",
-  "version": "0.2.0",
-  "description": "Syncs entries and assets from Contentful and saves a local copy",
+  "version": "0.2.1",
+  "description": "Syncs entries and assets from Contentful and saves a local copy, serving the data from memory at blazing speed",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
