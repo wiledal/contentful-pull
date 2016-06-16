@@ -117,11 +117,24 @@ ContentfulPull.prototype.handleSyncResponse = function(resp) {
   return this.data;
 }
 
+ContentfulPull.prototype.resolveLink = function (field, entries, assets) {
+  var lookArray = entries;
+  if (field.type == "asset") {
+    lookArray = assets;
+  }
+  var referenced = lookArray.filter(function(e) {
+    if (e.id === field.id) return true;
+    return false;
+  });
+  return referenced[0];
+};
 /*
   transformData
     Transforms the data to preferred format before usage
 */
 ContentfulPull.prototype.transformData = function(data, options) {
+  var self = this;
+
   // If RAW data is requested, return basic object
   if (!options) options = {};
   if (options.raw) return data;
@@ -156,19 +169,14 @@ ContentfulPull.prototype.transformData = function(data, options) {
           // And go through each language
           var fieldContent = field[lang];
 
-          if (fieldContent instanceof Object && !(fieldContent instanceof Array)) {
-            // If the field is an object, find the entry with the id and set it
-            // to that
-
-            var lookArray = transformedData.entries;
-            if (fieldContent.type == "asset") {
-              lookArray = transformedData.assets;
+          if (fieldContent instanceof Object) {
+            if (fieldContent instanceof Array) {
+              field[lang] = fieldContent.map(function(c) {
+                return self.resolveLink(c, transformedData.entries, transformedData.assets);
+              })
+            }else{
+              field[lang] = self.resolveLink(fieldContent, transformedData.entries, transformedData.assets);
             }
-            var referenced = lookArray.filter(function(e) {
-              if (e.id == fieldContent.id) return true;
-              return false;
-            });
-            field[lang] = referenced[0];
           }
         }
       }

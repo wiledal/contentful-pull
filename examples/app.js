@@ -10,7 +10,7 @@ var content = new ContentfulPull({
 
 var server = http.createServer(function(req, res) {
   if (req.url == "/") {
-    content.get().then(function(data) {
+    content.get({resolveLinks: true}).then(function(data) {
       var assets = data.assets;
       var entries = data.entries;
 

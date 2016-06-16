@@ -1,5 +1,8 @@
 # contentful-pull changelog
 
+#### v0.2.3
+  - Fixed resolveLinks for arrays
+
 #### v0.2.2
   - Errors when saving now show in console
 
