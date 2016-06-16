@@ -171,11 +171,15 @@ ContentfulPull.prototype.transformData = function(data, options) {
 
           if (fieldContent instanceof Object) {
             if (fieldContent instanceof Array) {
-              field[lang] = fieldContent.map(function(c) {
-                return self.resolveLink(c, transformedData.entries, transformedData.assets);
-              })
+              var links = [];
+              fieldContent.forEach(function(c) {
+                var link = self.resolveLink(c, transformedData.entries, transformedData.assets);
+                if (link) links.push(link);
+              });
+              field[lang] = links;
             }else{
-              field[lang] = self.resolveLink(fieldContent, transformedData.entries, transformedData.assets);
+              var link = self.resolveLink(fieldContent, transformedData.entries, transformedData.assets);
+              field[lang] = link ? link : null;
             }
           }
         }

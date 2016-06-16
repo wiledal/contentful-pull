@@ -1,5 +1,8 @@
 # contentful-pull changelog
 
+#### v0.2.4
+  - If a resolved link is not available, due to publish settings or otherwise, do not include it
+
 #### v0.2.3
   - Fixed resolveLinks for arrays
 
