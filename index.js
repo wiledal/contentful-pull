@@ -53,7 +53,7 @@ ContentfulPull.prototype.sync = function(options) {
       sync: result[2]
     });
 
-    d.resolve(_this.transformData(handledData));
+    d.resolve(_this.transformData(handledData, options));
   });
 
   return d.promise;
