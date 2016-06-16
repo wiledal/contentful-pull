@@ -1,5 +1,8 @@
 # contentful-pull changelog
 
+#### v0.2.6
+  - Fixed issue with parsing empty fields
+
 #### v0.2.5
   - Missed passing options to data transformation, causing broken link resolving from .sync
 

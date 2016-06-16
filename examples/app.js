@@ -17,7 +17,6 @@ var server = http.createServer(function(req, res) {
       var entryTypes = [];
       entries.forEach(function(entry) {
         if (entryTypes.indexOf(entry.type) == -1) entryTypes.push(entry.type);
-        console.log(entry.fields.image["en-US"]);
       });
 
       res.end(`
