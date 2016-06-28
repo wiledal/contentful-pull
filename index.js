@@ -118,6 +118,9 @@ ContentfulPull.prototype.handleSyncResponse = function(resp) {
 }
 
 ContentfulPull.prototype.resolveLink = function (field, entries, assets) {
+  // If field is not an object, return
+  if (!(field instanceof Object) || !field.type) return field;
+
   var lookArray = entries;
   if (field.type == "asset") {
     lookArray = assets;
