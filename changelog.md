@@ -1,5 +1,8 @@
 # contentful-pull changelog
 
+#### v0.2.7
+  - Fixed parsing of arrays when resolving links
+
 #### v0.2.6
   - Fixed issue with parsing empty fields
 
