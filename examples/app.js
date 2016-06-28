@@ -19,17 +19,6 @@ var server = http.createServer(function(req, res) {
         if (entryTypes.indexOf(entry.type) == -1) entryTypes.push(entry.type);
       });
 
-      // TEST
-      entries.forEach( function(entry) {
-        if (entry.type == "TestContentType") {
-          for (var i in entry.fields) {
-            var field = entry.fields[i];
-
-            console.log(field);
-          }
-        }
-      });
-
       res.end(`
 <html>
 <body>
