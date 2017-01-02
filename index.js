@@ -33,7 +33,7 @@ ContentfulPull.prototype.sync = function(options) {
 
   console.log("ContentfulPull | Syncing...");
 
-  var d = Promise.defer();
+  var d = new Promise;
 
   var client = contentful.createClient({
     space: this.settings.space,
@@ -56,7 +56,7 @@ ContentfulPull.prototype.sync = function(options) {
     d.resolve(_this.transformData(handledData, options));
   });
 
-  return d.promise;
+  return d;
 };
 
 /*
@@ -199,7 +199,7 @@ ContentfulPull.prototype.transformData = function(data, options) {
 */
 ContentfulPull.prototype.getFromFile = function(options) {
   var _this = this;
-  var d = Promise.defer();
+  var d = new Promise;
 
   fs.readFile(this.settings.path, "utf8", function(err, resp) {
     if (err) d.reject(err);
@@ -210,7 +210,7 @@ ContentfulPull.prototype.getFromFile = function(options) {
     }
   })
 
-  return d.promise;
+  return d;
 }
 
 /*
@@ -219,7 +219,7 @@ ContentfulPull.prototype.getFromFile = function(options) {
 */
 ContentfulPull.prototype.get = function(options) {
   var _this = this;
-  var d = Promise.defer();
+  var d = new Promise;
 
   // If no data is in memory, get from file, if that's not existing, sync from contentful
   if (!this.data) {
@@ -232,7 +232,7 @@ ContentfulPull.prototype.get = function(options) {
     })
   }
 
-  return d.promise;
+  return d;
 }
 
 /*
@@ -240,7 +240,7 @@ ContentfulPull.prototype.get = function(options) {
     Saves the data to a local file
 */
 ContentfulPull.prototype.saveLocal = function(data) {
-  var d = Promise.defer();
+  var d = new Promise;
 
   console.log("ContentfulPull | Saving to local file...");
 
@@ -257,7 +257,7 @@ ContentfulPull.prototype.saveLocal = function(data) {
     }
   });
 
-  return d.promise;
+  return d;
 };
 
 module.exports = ContentfulPull;
