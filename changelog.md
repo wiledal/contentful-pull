@@ -1,5 +1,8 @@
 # contentful-pull changelog
 
+#### v0.2.8
+  - Changed to `new Promise` notation to fix deprecation errors on newer node
+
 #### v0.2.7
   - Fixed parsing of arrays when resolving links
 
