@@ -32,31 +32,30 @@ ContentfulPull.prototype.sync = function(options) {
   var _this = this;
 
   console.log("ContentfulPull | Syncing...");
+  console.log(_this.settings);
 
-  var d = Promise.defer();
+  return new Promise(function(resolve, reject){
+    var client = contentful.createClient({
+      space: _this.settings.space,
+      accessToken: _this.settings.accessToken
+    })
 
-  var client = contentful.createClient({
-    space: this.settings.space,
-    accessToken: this.settings.accessToken
-  })
+    var isInitial = _this.currentSyncToken ? false : true;
 
-  var isInitial = this.currentSyncToken ? false : true;
+    var spacePromise = client.getSpace();
+    var contentTypesPromise = client.getContentTypes();
+    var syncPromise = client.sync({initial: isInitial, resolveLinks: false, nextSyncToken: _this.currentSyncToken});
 
-  var spacePromise = client.getSpace();
-  var contentTypesPromise = client.getContentTypes();
-  var syncPromise = client.sync({initial: isInitial, resolveLinks: false, nextSyncToken: this.currentSyncToken});
+    Promise.all([spacePromise, contentTypesPromise, syncPromise]).then(function(result) {
+      var handledData = _this.handleSyncResponse({
+        space: result[0],
+        contentTypes: result[1],
+        sync: result[2]
+      });
 
-  Promise.all([spacePromise, contentTypesPromise, syncPromise]).then(function(result) {
-    var handledData = _this.handleSyncResponse({
-      space: result[0],
-      contentTypes: result[1],
-      sync: result[2]
+      resolve(_this.transformData(handledData, options));
     });
-
-    d.resolve(_this.transformData(handledData, options));
   });
-
-  return d.promise;
 };
 
 /*
@@ -199,18 +198,16 @@ ContentfulPull.prototype.transformData = function(data, options) {
 */
 ContentfulPull.prototype.getFromFile = function(options) {
   var _this = this;
-  var d = Promise.defer();
-
-  fs.readFile(this.settings.path, "utf8", function(err, resp) {
-    if (err) d.reject(err);
-    if (!err) {
-      _this.data = JSON.parse(resp);
-      _this.currentSyncToken = _this.data.sync.currentSyncToken;
-      d.resolve(_this.transformData(_this.data, options));
-    }
-  })
-
-  return d.promise;
+  return new Promise(function(resolve, reject){
+    fs.readFile(_this.settings.path, "utf8", function(err, resp) {
+      if (err) reject(err);
+      if (!err) {
+        _this.data = JSON.parse(resp);
+        _this.currentSyncToken = _this.data.sync.currentSyncToken;
+        resolve(_this.transformData(_this.data, options));
+      }
+    })
+  });
 }
 
 /*
@@ -219,20 +216,19 @@ ContentfulPull.prototype.getFromFile = function(options) {
 */
 ContentfulPull.prototype.get = function(options) {
   var _this = this;
-  var d = Promise.defer();
+  return new Promise(function(resolve, reject){
 
-  // If no data is in memory, get from file, if that's not existing, sync from contentful
-  if (!this.data) {
-    this.getFromFile(options).then(d.resolve).catch(function() {
-      _this.sync(options).then(d.resolve);
-    })
-  }else{
-    return new Promise(function(resolve, reject) {
-      resolve(_this.transformData(_this.data, options));
-    })
-  }
-
-  return d.promise;
+    // If no data is in memory, get from file, if that's not existing, sync from contentful
+    if (!_this.data) {
+      _this.getFromFile(options).then(resolve).catch(function() {
+        _this.sync(options).then(resolve);
+      })
+    }else{
+      return new Promise(function(resolve, reject) {
+        resolve(_this.transformData(_this.data, options));
+      })
+    }
+  });
 }
 
 /*
@@ -240,24 +236,23 @@ ContentfulPull.prototype.get = function(options) {
     Saves the data to a local file
 */
 ContentfulPull.prototype.saveLocal = function(data) {
-  var d = Promise.defer();
-
   console.log("ContentfulPull | Saving to local file...");
+  var _this = this;
 
   // Write to local storage
-  fs.writeFile(this.settings.path, JSON.stringify(data), "utf8", function(err) {
-    if (err) {
-      console.log("ContentfulPull | An error occurred while saving local file.");
-      console.log(err.stack);
-      d.reject();
-    }
-    if (!err) {
-      console.log("ContentfulPull | File saved successfully.");
-      d.resolve();
-    }
+  return new Promise(function(resolve, reject){
+    fs.writeFile(_this.settings.path, JSON.stringify(data), "utf8", function(err) {
+      if (err) {
+        console.log("ContentfulPull | An error occurred while saving local file.");
+        console.log(err.stack);
+        reject();
+      }
+      if (!err) {
+        console.log("ContentfulPull | File saved successfully.");
+        resolve();
+      }
+    });
   });
-
-  return d.promise;
 };
 
 module.exports = ContentfulPull;
