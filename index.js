@@ -218,8 +218,8 @@ ContentfulPull.prototype.get = function(options) {
   return new Promise(function(resolve, reject){
 
     // If no data is in memory, get from file, if that's not existing, sync from contentful
-    if (!this.data) {
-      this.getFromFile(options).then(resolve).catch(function() {
+    if (!_this.data) {
+      _this.getFromFile(options).then(resolve).catch(function() {
         _this.sync(options).then(resolve);
       })
     }else{
