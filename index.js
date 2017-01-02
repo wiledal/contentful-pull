@@ -35,15 +35,15 @@ ContentfulPull.prototype.sync = function(options) {
 
   return new Promise(function(resolve, reject){
     var client = contentful.createClient({
-      space: this.settings.space,
-      accessToken: this.settings.accessToken
+      space: _this.settings.space,
+      accessToken: _this.settings.accessToken
     })
 
-    var isInitial = this.currentSyncToken ? false : true;
+    var isInitial = _this.currentSyncToken ? false : true;
 
     var spacePromise = client.getSpace();
     var contentTypesPromise = client.getContentTypes();
-    var syncPromise = client.sync({initial: isInitial, resolveLinks: false, nextSyncToken: this.currentSyncToken});
+    var syncPromise = client.sync({initial: isInitial, resolveLinks: false, nextSyncToken: _this.currentSyncToken});
 
     Promise.all([spacePromise, contentTypesPromise, syncPromise]).then(function(result) {
       var handledData = _this.handleSyncResponse({
