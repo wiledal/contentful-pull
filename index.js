@@ -32,6 +32,7 @@ ContentfulPull.prototype.sync = function(options) {
   var _this = this;
 
   console.log("ContentfulPull | Syncing...");
+  console.log(_this.settings);
 
   return new Promise(function(resolve, reject){
     var client = contentful.createClient({
@@ -198,7 +199,7 @@ ContentfulPull.prototype.transformData = function(data, options) {
 ContentfulPull.prototype.getFromFile = function(options) {
   var _this = this;
   return new Promise(function(resolve, reject){
-    fs.readFile(this.settings.path, "utf8", function(err, resp) {
+    fs.readFile(_this.settings.path, "utf8", function(err, resp) {
       if (err) reject(err);
       if (!err) {
         _this.data = JSON.parse(resp);
@@ -236,10 +237,11 @@ ContentfulPull.prototype.get = function(options) {
 */
 ContentfulPull.prototype.saveLocal = function(data) {
   console.log("ContentfulPull | Saving to local file...");
+  var _this = this;
 
   // Write to local storage
   return new Promise(function(resolve, reject){
-    fs.writeFile(this.settings.path, JSON.stringify(data), "utf8", function(err) {
+    fs.writeFile(_this.settings.path, JSON.stringify(data), "utf8", function(err) {
       if (err) {
         console.log("ContentfulPull | An error occurred while saving local file.");
         console.log(err.stack);
