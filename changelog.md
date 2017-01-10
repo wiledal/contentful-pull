@@ -1,5 +1,9 @@
 # contentful-pull changelog
 
+#### v0.2.9
+  - Now using normal functions instead of arrow-functions for backwards
+    compatibility
+
 #### v0.2.8
   - Changed to `new Promise` notation to fix deprecation errors on newer node
 

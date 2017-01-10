@@ -31,19 +31,19 @@ function ContentfulPull(settings) {
 ContentfulPull.prototype.sync = function(options) {
   var _this = this;
 
-  return new Promise((resolve, reject) => {
+  return new Promise(function(resolve, reject) {
     console.log("ContentfulPull | Syncing...");
 
     var client = contentful.createClient({
-      space: this.settings.space,
-      accessToken: this.settings.accessToken
+      space: _this.settings.space,
+      accessToken: _this.settings.accessToken
     })
 
-    var isInitial = this.currentSyncToken ? false : true;
+    var isInitial = _this.currentSyncToken ? false : true;
 
     var spacePromise = client.getSpace();
     var contentTypesPromise = client.getContentTypes();
-    var syncPromise = client.sync({initial: isInitial, resolveLinks: false, nextSyncToken: this.currentSyncToken});
+    var syncPromise = client.sync({initial: isInitial, resolveLinks: false, nextSyncToken: _this.currentSyncToken});
 
     Promise.all([spacePromise, contentTypesPromise, syncPromise]).then(function(result) {
       var handledData = _this.handleSyncResponse({
@@ -197,8 +197,8 @@ ContentfulPull.prototype.transformData = function(data, options) {
 */
 ContentfulPull.prototype.getFromFile = function(options) {
   var _this = this;
-  return new Promise((resolve, reject) => {
-    fs.readFile(this.settings.path, "utf8", function(err, resp) {
+  return new Promise(function(resolve, reject) {
+    fs.readFile(_this.settings.path, "utf8", function(err, resp) {
       if (err) reject(err);
       if (!err) {
         _this.data = JSON.parse(resp);
@@ -216,10 +216,10 @@ ContentfulPull.prototype.getFromFile = function(options) {
 ContentfulPull.prototype.get = function(options) {
   var _this = this;
 
-  return new Promise((resolve, reject) => {
+  return new Promise(function(resolve, reject) {
     // If no data is in memory, get from file, if that's not existing, sync from contentful
-    if (!this.data) {
-      this.getFromFile(options).then(resolve).catch(function() {
+    if (!_this.data) {
+      _this.getFromFile(options).then(resolve).catch(function() {
         _this.sync(options).then(resolve);
       })
     }else{
@@ -233,11 +233,12 @@ ContentfulPull.prototype.get = function(options) {
     Saves the data to a local file
 */
 ContentfulPull.prototype.saveLocal = function(data) {
+  var _this = this
   return new Promise((resolve, reject) => {
     console.log("ContentfulPull | Saving to local file...");
 
     // Write to local storage
-    fs.writeFile(this.settings.path, JSON.stringify(data), "utf8", function(err) {
+    fs.writeFile(_this.settings.path, JSON.stringify(data), "utf8", function(err) {
       if (err) {
         console.log("ContentfulPull | An error occurred while saving local file.");
         console.log(err.stack);
