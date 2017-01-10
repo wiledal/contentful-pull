@@ -234,7 +234,7 @@ ContentfulPull.prototype.get = function(options) {
 */
 ContentfulPull.prototype.saveLocal = function(data) {
   var _this = this
-  return new Promise((resolve, reject) => {
+  return new Promise(function(resolve, reject) {
     console.log("ContentfulPull | Saving to local file...");
 
     // Write to local storage
